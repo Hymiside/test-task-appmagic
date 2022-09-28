@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"github.com/Hymiside/test-task-appmagic/pkg/repository"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/Hymiside/test-task-appmagic/pkg/cache"
 	"github.com/Hymiside/test-task-appmagic/pkg/config"
 	"github.com/Hymiside/test-task-appmagic/pkg/handler"
 	"github.com/Hymiside/test-task-appmagic/pkg/server"
@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	cfgServ, cfgRepo := config.InitConfig()
+	cfgServ := config.InitConfig()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -23,11 +23,12 @@ func main() {
 	srv := &server.Server{}
 	h := &handler.Handler{}
 
-	repo, err := repository.NewRepository(ctx, cfgRepo)
-	if err != nil {
-		log.Panicf("falied to create redis reository:%v", err)
+	ch := cache.NewCache()
+	services := service.NewService(*ch)
+
+	if err := services.SetInfoGas(); err != nil {
+		log.Panicf("error set info: %v", err)
 	}
-	services := service.NewService(repo)
 
 	go func() {
 		quit := make(chan os.Signal, 1)
