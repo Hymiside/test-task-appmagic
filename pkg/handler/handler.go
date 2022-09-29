@@ -32,7 +32,13 @@ func (h *Handler) InitHandler(s service.Service) *chi.Mux {
 	return h.handler
 }
 
-func (s *Handlers) getInfoGasPerMonth(w http.ResponseWriter, r *http.Request) {}
+func (s *Handlers) getInfoGasPerMonth(w http.ResponseWriter, r *http.Request) {
+	res, err := s.service.GetInfoGas("GasPerMonth")
+	if err != nil {
+		ResponseError(w, err.Error(), http.StatusInternalServerError)
+	}
+	ResponseOk(w, res)
+}
 
 func (s *Handlers) getInfoPricePerDay(w http.ResponseWriter, r *http.Request) {
 	res, err := s.service.GetInfoGas("PricePerDay")

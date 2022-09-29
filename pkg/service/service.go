@@ -3,9 +3,9 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-
 	"github.com/Hymiside/test-task-appmagic/pkg/cache"
+	"net/http"
+	"time"
 )
 
 type GasInfoDict struct {
@@ -29,6 +29,8 @@ type Service struct {
 	cache *cache.Cache
 }
 
+var amountDays float64
+
 func NewService(c cache.Cache) *Service {
 	return &Service{cache: &c}
 }
@@ -39,7 +41,9 @@ func (s *Service) SetInfoGas() error {
 	if err != nil {
 		return err
 	}
+	amountDays = float64(len(infoGas.Ethereum.Transactions) / 24)
 
+	s.SetInfoGasPerMonth(infoGas)
 	s.SetInfoHourlyPrice(infoGas)
 	s.SetInfoSumAllPeriod(infoGas)
 	s.SetInfoPricePerDay(infoGas)
@@ -63,11 +67,31 @@ func (s *Service) GetInfoGasGit() (GasInfoDict, error) {
 
 // SetInfoGasPerMonth считает сколько было потрачено gas помесячно и кладет в кэш
 func (s *Service) SetInfoGasPerMonth(infoGas GasInfoDict) {
+	gasPerMonthDict := map[string]float64{
+		"January":   0.0,
+		"February":  0.0,
+		"March":     0.0,
+		"April":     0.0,
+		"May":       0.0,
+		"June":      0.0,
+		"July":      0.0,
+		"August":    0.0,
+		"September": 0.0,
+		"October":   0.0,
+		"November":  0.0,
+		"December":  0.0,
+	}
 
+	for _, value := range infoGas.Ethereum.Transactions {
+		t, _ := time.Parse("06-02-01 15:04", value.Time)
+		gasPerMonthDict[t.Month().String()] += value.GasValue
+	}
+	s.cache.Set("GasPerMonth", gasPerMonthDict)
 }
 
 // SetInfoPricePerDay считает среднюю цену за день и кладет в кэш
 func (s *Service) SetInfoPricePerDay(infoGas GasInfoDict) {
+
 	var (
 		count int
 		sum   float64
@@ -103,7 +127,7 @@ func (s *Service) SetInfoHourlyPrice(infoGas GasInfoDict) {
 	}
 
 	for key, value := range hourlyPriceDict {
-		hourlyPriceDict[key] = value / 217
+		hourlyPriceDict[key] = value / amountDays
 	}
 	s.cache.Set("HourlyPrice", hourlyPriceDict)
 }
