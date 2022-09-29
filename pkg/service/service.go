@@ -4,26 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Hymiside/test-task-appmagic/pkg/cache"
+	"github.com/Hymiside/test-task-appmagic/pkg/models"
 	"net/http"
 	"time"
 )
-
-type GasInfoDict struct {
-	Ethereum Ethereum `json:"ethereum"`
-}
-
-type Ethereum struct {
-	Transactions []Transaction `json:"transactions"`
-}
-
-type Transaction struct {
-	Time           string  `json:"time"`
-	GasPrice       float64 `json:"gasPrice"`
-	GasValue       float64 `json:"gasValue"`
-	Average        float64 `json:"average"`
-	MaxGasPrice    float64 `json:"maxGasPrice"`
-	MedianGasPrice float64 `json:"medianGasPrice"`
-}
 
 type Service struct {
 	cache *cache.Cache
@@ -51,22 +35,22 @@ func (s *Service) SetInfoGas() error {
 }
 
 // GetInfoGasGit возвращает json из Git'а
-func (s *Service) GetInfoGasGit() (GasInfoDict, error) {
+func (s *Service) GetInfoGasGit() (models.GasInfoDict, error) {
 	resp, err := http.Get("https://raw.githubusercontent.com/CryptoRStar/GasPriceTestTask/main/gas_price.json")
 	if err != nil {
-		return GasInfoDict{}, fmt.Errorf("request error in Get: %w", err)
+		return models.GasInfoDict{}, fmt.Errorf("request error in Get: %w", err)
 	}
 	defer resp.Body.Close()
 
-	var data GasInfoDict
+	var data models.GasInfoDict
 	if err = json.NewDecoder(resp.Body).Decode(&data); err != nil {
-		return GasInfoDict{}, fmt.Errorf("error decode json: %w", err)
+		return models.GasInfoDict{}, fmt.Errorf("error decode json: %w", err)
 	}
 	return data, nil
 }
 
 // SetInfoGasPerMonth считает сколько было потрачено gas помесячно и кладет в кэш
-func (s *Service) SetInfoGasPerMonth(infoGas GasInfoDict) {
+func (s *Service) SetInfoGasPerMonth(infoGas models.GasInfoDict) {
 	gasPerMonthDict := map[string]float64{
 		"January":   0.0,
 		"February":  0.0,
@@ -90,7 +74,7 @@ func (s *Service) SetInfoGasPerMonth(infoGas GasInfoDict) {
 }
 
 // SetInfoPricePerDay считает среднюю цену за день и кладет в кэш
-func (s *Service) SetInfoPricePerDay(infoGas GasInfoDict) {
+func (s *Service) SetInfoPricePerDay(infoGas models.GasInfoDict) {
 
 	var (
 		count int
@@ -114,7 +98,7 @@ func (s *Service) SetInfoPricePerDay(infoGas GasInfoDict) {
 }
 
 // SetInfoHourlyPrice считает частотное распределние цены по часам (за весь период) и кладет в кэш
-func (s *Service) SetInfoHourlyPrice(infoGas GasInfoDict) {
+func (s *Service) SetInfoHourlyPrice(infoGas models.GasInfoDict) {
 	var count int
 	hourlyPriceDict := make(map[string]float64)
 
@@ -133,7 +117,7 @@ func (s *Service) SetInfoHourlyPrice(infoGas GasInfoDict) {
 }
 
 // SetInfoSumAllPeriod считает сколько заплатили за весь период и кладет в кэш
-func (s *Service) SetInfoSumAllPeriod(infoGas GasInfoDict) {
+func (s *Service) SetInfoSumAllPeriod(infoGas models.GasInfoDict) {
 	var sum float64
 
 	for _, value := range infoGas.Ethereum.Transactions {
