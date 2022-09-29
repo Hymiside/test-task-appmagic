@@ -76,7 +76,6 @@ func (s *Service) SetInfoGasPerMonth(infoGas models.GasInfoDict) {
 
 // SetInfoPricePerDay считает среднюю цену за день и кладет в кэш
 func (s *Service) SetInfoPricePerDay(infoGas models.GasInfoDict) {
-
 	var (
 		count int
 		sum   float64
