@@ -22,7 +22,7 @@ TYPE: GET
 URL: /api/price-per-day
 ```
 
-3. HourlyPrice - возвращает частотное распределение цены по часам(
+3. HourlyPrice - возвращает частотное распределение цены по часам
 ```
 TYPE: GET
 URL: /api/hourly-price
