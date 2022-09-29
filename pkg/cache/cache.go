@@ -2,6 +2,8 @@ package cache
 
 import "errors"
 
+var ErrorDataNotFound = errors.New("data not found")
+
 type Cache struct {
 	items map[string]Item
 }
@@ -22,7 +24,7 @@ func (c *Cache) Set(key string, value interface{}) {
 func (c *Cache) Get(key string) (interface{}, error) {
 	data := c.items[key].value
 	if data == nil {
-		return nil, errors.New("error no data")
+		return nil, ErrorDataNotFound
 	}
 	return data, nil
 }

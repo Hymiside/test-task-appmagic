@@ -25,7 +25,7 @@ func (h *Handler) InitHandler(s service.Service) *chi.Mux {
 	handlers := NewHandlers(s)
 
 	h.handler.Get("/api/gas-per-month", handlers.getInfoGasPerMonth)
-	h.handler.Post("/api/price-per-day", handlers.getInfoPricePerDay)
+	h.handler.Get("/api/price-per-day", handlers.getInfoPricePerDay)
 	h.handler.Get("/api/hourly-price", handlers.getInfoHourlyPrice)
 	h.handler.Get("/api/sum-all-period", handlers.getInfoSumAllPeriod)
 
@@ -34,11 +34,26 @@ func (h *Handler) InitHandler(s service.Service) *chi.Mux {
 
 func (s *Handlers) getInfoGasPerMonth(w http.ResponseWriter, r *http.Request) {}
 
-func (s *Handlers) getInfoPricePerDay(w http.ResponseWriter, r *http.Request) {}
+func (s *Handlers) getInfoPricePerDay(w http.ResponseWriter, r *http.Request) {
+	res, err := s.service.GetInfoGas("PricePerDay")
+	if err != nil {
+		ResponseError(w, err.Error(), http.StatusInternalServerError)
+	}
+	ResponseOk(w, res)
+}
 
-func (s *Handlers) getInfoHourlyPrice(w http.ResponseWriter, r *http.Request) {}
+func (s *Handlers) getInfoHourlyPrice(w http.ResponseWriter, r *http.Request) {
+	res, err := s.service.GetInfoGas("HourlyPrice")
+	if err != nil {
+		ResponseError(w, err.Error(), http.StatusInternalServerError)
+	}
+	ResponseOk(w, res)
+}
 
 func (s *Handlers) getInfoSumAllPeriod(w http.ResponseWriter, r *http.Request) {
-	res := s.service.GetInfoSumAllPeriod()
+	res, err := s.service.GetInfoGas("SumAllPeriod")
+	if err != nil {
+		ResponseError(w, err.Error(), http.StatusInternalServerError)
+	}
 	ResponseOk(w, res)
 }
