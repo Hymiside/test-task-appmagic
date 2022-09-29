@@ -3,10 +3,11 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Hymiside/test-task-appmagic/pkg/cache"
-	"github.com/Hymiside/test-task-appmagic/pkg/models"
 	"net/http"
 	"time"
+
+	"github.com/Hymiside/test-task-appmagic/pkg/cache"
+	"github.com/Hymiside/test-task-appmagic/pkg/models"
 )
 
 type Service struct {
